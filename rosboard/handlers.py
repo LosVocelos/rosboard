@@ -9,7 +9,7 @@ import types
 import uuid
 
 from . import __version__
-from plugins import get_plugin_js_files, received_plugin_message
+from rosboard.plugins import get_plugin_js_files, received_plugin_message
 
 class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
     def set_extra_headers(self, path):
