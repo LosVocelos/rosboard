@@ -27,6 +27,7 @@ setup(
             'html/js/*',
             'html/js/viewers/*',
             'html/js/viewers/meta/*',
+            'html/js/viewers/lampo/*',
             'html/js/transports/*'
         ]
     },

@@ -15,6 +15,9 @@ importJsOnce("js/viewers/DiagnosticViewer.js");
 importJsOnce("js/viewers/TimeSeriesPlotViewer.js");
 importJsOnce("js/viewers/PointCloud2Viewer.js");
 
+// Lampone specific Viewers
+importJsOnce("js/viewers/lampo/LampoMapViewer.js");
+
 // GenericViewer must be last
 importJsOnce("js/viewers/GenericViewer.js");
 
