@@ -25,63 +25,40 @@ class LampoMapViewer extends Viewer {
           .appendTo(this.viewerNode);
 
     super.onCreate();
+
+    var fields = ['size (px)', 'size (tiles)', 'roads'];
+    // this.road_tiles = " ╵╶└╷│┌├╴┘─┴┐┤┬┼";
+    this.road_tiles = " ╵╶╚╷║╔╠╴╝═╩╗╣╦╬";
+    for (let f in fields) {
+        let tr = $('<tr></tr>')
+          .appendTo(this.dataTable);
+        $('<td></td>')
+          .addClass('mdl-data-table__cell--non-numeric')
+          .text(fields[f])
+          .css({'width': '40%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis'})
+          .appendTo(tr);
+        this.fieldNodes[f] = $('<td></td>')
+          .addClass('mdl-data-table__cell--non-numeric')
+          .addClass('monospace')
+          .css({'overflow': 'hidden', 'text-overflow': 'ellipsis'})
+          .appendTo(tr);
+    }
   }
 
   onData(data) {
-      for(let field in data) {
-          if(field[0] === "_") continue;
-          // if(field === "header") continue;
-          // if(field === "name") continue;
-
-          if(!this.fieldNodes[field]) {
-              let tr = $('<tr></tr>')
-                .appendTo(this.dataTable);
-              $('<td></td>')
-                .addClass('mdl-data-table__cell--non-numeric')
-                .text(field)
-                .css({'width': '40%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis'})
-                .appendTo(tr);
-              this.fieldNodes[field] = $('<td></td>')
-                .addClass('mdl-data-table__cell--non-numeric')
-                .addClass('monospace')
-                .css({'overflow': 'hidden', 'text-overflow': 'ellipsis'})
-                .appendTo(tr);
-              let that = this;
-              this.fieldNodes[field].click(() => {that.expandFields[field] = !that.expandFields[field]; });
+      this.fieldNodes[0]
+        .text(data['height'].toString(10) + 'x' + data['width'].toString(10));
+      this.fieldNodes[1]
+        .text(data['tiles_y'].toString(10) + 'x' + data['tiles_x'].toString(10));
+      var text = "";
+      for (let i in data['roads']) {
+          if (i%data['tiles_x'] == 0 && i != 0) {
+              text += '<br>';
           }
-
-        if(data[field].uuid) {
-            this.fieldNodes[field].text(data[field].uuid.map((byte) => ((byte<16) ? "0": "") + (byte & 0xFF).toString(16)).join(''));
-            this.fieldNodes[field].css({"color": "#808080"});
-            continue;
-        }
-        
-        if(typeof(data[field])==="boolean") {
-          if(data[field] === true) {
-              this.fieldNodes[field].text("true");
-              this.fieldNodes[field].css({"color": "#80ff80"});
-          } else {
-              this.fieldNodes[field].text("false");
-              this.fieldNodes[field].css({"color": "#ff8080"});
-          }
-          continue;
-        }
-
-        if(data.__comp && data.__comp.includes(field)) {
-          this.fieldNodes[field][0].innerHTML = "(compressed)";
-          continue;
-        }
-
-        if(this.expandFields[field]) {
-          this.fieldNodes[field][0].innerHTML = (
-            JSON.stringify(data[field], null, '  ')
-              .replace(/\n/g, "<br>")
-              .replace(/ /g, "&nbsp;")
-          );
-        } else {
-          this.fieldNodes[field][0].innerHTML = JSON.stringify(data[field], null, '  ');
-        }
+          text += this.road_tiles[data['roads'][i]];
       }
+      this.fieldNodes[2][0].innerHTML = (text);
+      this.fieldNodes[2].css("line-height", 1.2);
   }
 }
 
