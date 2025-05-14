@@ -9,7 +9,6 @@ class LampoMapViewer extends Viewer {
     * @override
   **/
   onCreate() {
-    this.card.title.text("LampoMapViewer");
     this.viewerNode = $('<div></div>')
       .css({'font-size': '11pt'})
       .appendTo(this.card.content);
@@ -46,6 +45,7 @@ class LampoMapViewer extends Viewer {
   }
 
   onData(data) {
+      this.card.title.text(data._topic_name);
       this.fieldNodes[0]
         .text(data['height'].toString(10) + 'x' + data['width'].toString(10));
       this.fieldNodes[1]

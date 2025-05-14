@@ -191,6 +191,16 @@ function addTopicTreeToNav(topicTree, el, level = 0, path = "") {
   });
 }
 
+let ro = new ResizeObserver(entries => {
+  for (let entry of entries) {
+    const cr = entry.contentRect;
+    $grid.masonry("layout");
+
+    console.log('Element:', entry.target.children[1].textContent);
+    console.log(`Element size: ${cr.width}px x ${cr.height}px`);
+  }
+});
+
 function initSubscribe({topicName, topicType}) {
   // creates a subscriber for topicName
   // and also initializes a viewer (if it doesn't already exist)
@@ -213,6 +223,8 @@ function initSubscribe({topicName, topicType}) {
     }
     $grid.masonry("appended", card);
     $grid.masonry("layout");
+    // Observe one or multiple elements
+    ro.observe(card[0]);
   }
   updateStoredSubscriptions();
 }
@@ -278,6 +290,8 @@ Viewer.onClose = function(viewerInstance) {
   let topicType = viewerInstance.topicType;
   currentTransport.unsubscribe({topicName:topicName});
   $grid.masonry("remove", viewerInstance.card);
+  // Unobserve one or multiple elements
+  ro.unobserve(viewerInstance.card[0]);
   $grid.masonry("layout");
   delete(subscriptions[topicName].viewer);
   delete(subscriptions[topicName]);
