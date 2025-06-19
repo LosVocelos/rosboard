@@ -17,6 +17,8 @@ importJsOnce("js/viewers/PointCloud2Viewer.js");
 
 // Lampone specific Viewers
 importJsOnce("js/viewers/lampo/LampoMapViewer.js");
+importJsOnce("js/viewers/lampo/RoadMapViewer.js");
+importJsOnce("js/viewers/lampo/TraffLightPub.js");
 
 // GenericViewer must be last
 importJsOnce("js/viewers/GenericViewer.js");

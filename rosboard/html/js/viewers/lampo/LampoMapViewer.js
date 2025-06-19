@@ -20,7 +20,7 @@ class LampoMapViewer extends Viewer {
     this.dataTable = $('<table></table>')
           .addClass('mdl-data-table')
           .addClass('mdl-js-data-table')
-          .css({'width': '100%', 'min-height': '30pt', 'table-layout': 'fixed' })
+          .css({'width': '100%', 'min-height': '30pt', 'table-layout': 'fixed'})
           .appendTo(this.viewerNode);
 
     super.onCreate();
