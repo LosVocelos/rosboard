@@ -38,6 +38,21 @@ class RoadMapViewer extends Space2DViewer {
      * The `onCreate` method is inherited from Space2DViewer and is where the
      * canvas and its context are set up. We don't need to override it here.
      */
+    zoom(factor) {
+      if(((this.xmax - this.xmin) >= this.defaultScale || (this.ymax - this.ymin) >= this.defaultScale)
+         && factor > 1)  return;
+      if(((this.xmax - this.xmin) <= 0.5 || (this.ymax - this.ymin) <= 0.5)
+         && factor < 1)  return;
+      super.zoom(factor);
+    }
+
+    pan(deltax, deltay) {
+      if(this.xmin + deltax < (this.defaultXCenter - this.defaultScale/2) && deltax < 0 ||
+         this.xmax + deltax > (this.defaultXCenter + this.defaultScale/2) && deltax > 0 ) deltax = 0;
+      if(this.ymin + deltay < (this.defaultYCenter - this.defaultScale/2) && deltay < 0 ||
+         this.ymax + deltay > (this.defaultYCenter + this.defaultScale/2) && deltay > 0 ) deltay = 0;
+      super.pan(deltax, deltay);
+    }
 
     /**
      * This method is called by RosBoard when a new message for this viewer's
@@ -74,21 +89,24 @@ class RoadMapViewer extends Space2DViewer {
         const { height, width, tiles_y, tiles_x, roads } = mapData;
 
         // Calculate the dimensions of each individual tile in world units.
-        const tileWidth = width / tiles_x;
-        const tileHeight = height / tiles_y;
+        const tileWidth = 1;  // width / tiles_x;
+        const tileHeight = 1;  // height / tiles_y;
+        
+        const rendWidth = tileWidth * tiles_x;
+        const rendHeight = tileHeight * tiles_y;
 
         // Determine the current scaling factor of the Space2DViewer's world units to its internal virtual pixels.
         // This is crucial for drawing lines that maintain consistent visual thickness at different zoom levels.
         // (this.xmax - this.xmin) is the current width of the view in world units (meters).
         // this.size is the fixed virtual pixel size of the Space2DViewer's canvas (e.g., 500).
-        const worldUnitsPerVirtualPixel = (this.xmax - this.xmin) / this.size;
+        const worldUnitsPerVirtualPixel = 1;  // (this.xmax - this.xmin) / this.size;
 
         // Desired screen pixel thickness for grid lines, converted to world units.
-        const desiredGridPixelWidth = 1.0; // 1 pixel visually
+        const desiredGridPixelWidth = 2.0; // 2 pixels visually
         const gridLineWidth = desiredGridPixelWidth * worldUnitsPerVirtualPixel;
 
         // Desired screen pixel thickness for road lines, converted to world units.
-        const desiredRoadPixelWidth = 3.0; // 3 pixels visually
+        const desiredRoadPixelWidth = 6.0; // 6 pixels visually
         const roadLineWidth = desiredRoadPixelWidth * worldUnitsPerVirtualPixel;
 
         // --- Add Grid Lines (Tile Boundaries) to drawObjects ---
@@ -96,9 +114,9 @@ class RoadMapViewer extends Space2DViewer {
             const mapX = i * tileWidth; // X-coordinate of vertical line in map's top-left origin system
 
             // Convert map coordinates to Space2DViewer's world coordinates (center origin, Y-up).
-            const sX = mapX - width / 2;
-            const sY_start = -(0 - height / 2);      // Top edge of the map
-            const sY_end = -(height - height / 2);    // Bottom edge of the map
+            const sX = mapX - rendWidth / 2;
+            const sY_start = -(0 - rendHeight / 2);      // Top edge of the map
+            const sY_end = -(rendHeight - rendHeight / 2);    // Bottom edge of the map
 
             drawObjects.push({
                 type: "path",
@@ -112,9 +130,9 @@ class RoadMapViewer extends Space2DViewer {
             const mapY = i * tileHeight; // Y-coordinate of horizontal line in map's top-left origin system
 
             // Convert map coordinates to Space2DViewer's world coordinates.
-            const sX_start = 0 - width / 2;         // Left edge of the map
-            const sX_end = width - width / 2;       // Right edge of the map
-            const sY = -(mapY - height / 2);         // Y-coordinate in Space2DViewer's Y-up system
+            const sX_start = 0 - rendWidth / 2;         // Left edge of the map
+            const sX_end = rendWidth - rendWidth / 2;       // Right edge of the map
+            const sY = -(mapY - rendHeight / 2);         // Y-coordinate in Space2DViewer's Y-up system
 
             drawObjects.push({
                 type: "path",
@@ -149,8 +167,8 @@ class RoadMapViewer extends Space2DViewer {
                 const centerMapY = tileMapGlobalY + tileMidY;
 
                 // Convert tile center to Space2DViewer's world coordinates.
-                const centerSX = centerMapX - width / 2;
-                const centerSY = -(centerMapY - height / 2); // Flip Y-axis
+                const centerSX = centerMapX - rendWidth / 2;
+                const centerSY = -(centerMapY - rendHeight / 2); // Flip Y-axis
 
                 // Check each bit in the `roadMask` to determine which road segments to add.
                 // Each segment connects the tile center to the midpoint of its respective edge.
@@ -161,7 +179,7 @@ class RoadMapViewer extends Space2DViewer {
                     const endMapY = tileMapGlobalY; // Top edge Y
                     drawObjects.push({
                         type: "path",
-                        data: [centerSX, centerSY, endMapX - width / 2, -(endMapY - height / 2)],
+                        data: [centerSX, centerSY, endMapX - rendWidth / 2, -(endMapY - rendHeight / 2)],
                         lineWidth: roadLineWidth,
                         color: "#cbd5e1" // Dark grey for roads
                     });
@@ -172,7 +190,7 @@ class RoadMapViewer extends Space2DViewer {
                     const endMapY = tileMapGlobalY + tileMidY;
                     drawObjects.push({
                         type: "path",
-                        data: [centerSX, centerSY, endMapX - width / 2, -(endMapY - height / 2)],
+                        data: [centerSX, centerSY, endMapX - rendWidth / 2, -(endMapY - rendHeight / 2)],
                         lineWidth: roadLineWidth,
                         color: "#cbd5e1"
                     });
@@ -183,7 +201,7 @@ class RoadMapViewer extends Space2DViewer {
                     const endMapY = tileMapGlobalY + tileHeight; // Bottom edge Y
                     drawObjects.push({
                         type: "path",
-                        data: [centerSX, centerSY, endMapX - width / 2, -(endMapY - height / 2)],
+                        data: [centerSX, centerSY, endMapX - rendWidth / 2, -(endMapY - rendHeight / 2)],
                         lineWidth: roadLineWidth,
                         color: "#cbd5e1"
                     });
@@ -194,7 +212,7 @@ class RoadMapViewer extends Space2DViewer {
                     const endMapY = tileMapGlobalY + tileMidY;
                     drawObjects.push({
                         type: "path",
-                        data: [centerSX, centerSY, endMapX - width / 2, -(endMapY - height / 2)],
+                        data: [centerSX, centerSY, endMapX - rendWidth / 2, -(endMapY - rendHeight / 2)],
                         lineWidth: roadLineWidth,
                         color: "#cbd5e1"
                     });
@@ -206,7 +224,7 @@ class RoadMapViewer extends Space2DViewer {
         // This makes sure the map is visible when the viewer first opens or if it's reset.
         // 'scale' defines the total span of the view (e.g., 40.0 meters).
         // Since our map is `width` and `height`, we can set the scale to fit the larger dimension.
-        const defaultViewScale = Math.max(width, height) * 1.2; // Add some padding
+        const defaultViewScale = Math.max(rendWidth, rendHeight) * 1.2; // Add some padding
         this.setDefaultView({xcenter: 0, ycenter: 0, scale: defaultViewScale}); // Center on (0,0) of the map
 
         // Finally, pass the array of generated drawing objects to the base Space2DViewer's draw function.

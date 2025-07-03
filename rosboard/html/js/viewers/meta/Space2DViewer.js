@@ -113,7 +113,7 @@ class Space2DViewer extends Viewer {
       if(e && e.preventDefault) e.preventDefault();
     });
 
-    this.canvas[0].addEventListener('mousewheel', function(e) {
+    this.canvas[0].addEventListener('wheel', function(e) {
       if(e === null) e = window.event;
       if(e && e.preventDefault) e.preventDefault();
       else e.returnValue=false;
